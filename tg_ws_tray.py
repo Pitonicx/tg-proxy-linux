@@ -9,24 +9,12 @@ import sys
 import threading
 import time
 import webbrowser
+import pystray
 import asyncio as _asyncio
+import customtkinter as ctk
 from pathlib import Path
-from typing import Dict, List, Optional
-
-try:
-    from PIL import Image, ImageDraw, ImageFont
-except ImportError:
-    Image = ImageDraw = ImageFont = None  # type: ignore
-
-try:
-    import pystray
-except ImportError:
-    pystray = None  # type: ignore
-
-try:
-    import customtkinter as ctk
-except ImportError:
-    ctk = None  # type: ignore
+from typing import Dict, Optional
+from PIL import Image, ImageDraw, ImageFont
 
 # Proxy engine
 import tg_ws_proxy
@@ -47,7 +35,6 @@ DEFAULT_CONFIG = {
 
 
 _proxy_thread: Optional[threading.Thread] = None
-_stop_event: Optional[threading.Event] = None
 _async_stop: Optional[object] = None
 _tray_icon: Optional[object] = None
 _config: dict = {}
