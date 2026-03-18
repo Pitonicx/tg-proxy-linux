@@ -298,12 +298,17 @@ def _show_info(text: str, title: str = "TG WS Proxy"):
     root.destroy()
 
 
-def _on_open_in_telegram(icon=None, item=None):
+def _open_url_thread():
     port = _config.get("port", DEFAULT_CONFIG["port"])
-    url = f"tg://socks?server=127.0.0.1&port={port}"
+    host = _config.get("host", DEFAULT_CONFIG["host"])
+    url = f"tg://socks?server={host}&port={port}"
     log.info("Opening %s", url)
+    
+    # We strip any env vars that might interfere with xdg-open if launched from a virtualenv
+    env = os.environ.copy()
+    env.pop("VIRTUAL_ENV", None)
     try:
-        result = subprocess.call(['xdg-open', url])
+        result = subprocess.call(['xdg-open', url], env=env)
         if result != 0:
             raise RuntimeError("xdg-open failed")
     except Exception:
@@ -323,6 +328,9 @@ def _on_open_in_telegram(icon=None, item=None):
             except Exception as exc:
                 log.error("Clipboard copy failed: %s", exc)
                 _show_error(f"Не удалось скопировать ссылку:\n{exc}")
+
+def _on_open_in_telegram(icon=None, item=None):
+    threading.Thread(target=_open_url_thread, daemon=True, name="open-tg").start()
 
 
 def _on_restart(icon=None, item=None):
