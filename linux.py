@@ -302,10 +302,18 @@ def _on_open_in_telegram(icon=None, item=None):
     port = _config.get("port", DEFAULT_CONFIG["port"])
     url = f"tg://socks?server=127.0.0.1&port={port}"
     log.info("Opening %s", url)
+    
+    env = os.environ.copy()
+    env.pop("VIRTUAL_ENV", None)
+    env.pop("PYTHONPATH", None)
+    env.pop("PYTHONHOME", None)
+    
     try:
-        result = subprocess.call(['xdg-open', url])
-        if result != 0:
-            raise RuntimeError("xdg-open failed")
+        subprocess.Popen(['xdg-open', url], env=env,
+                         stdout=subprocess.DEVNULL,
+                         stderr=subprocess.DEVNULL,
+                         stdin=subprocess.DEVNULL,
+                         start_new_session=True)
     except Exception:
         log.info("xdg-open failed, trying webbrowser")
         try:
@@ -489,7 +497,16 @@ def _edit_config_dialog():
 def _on_open_logs(icon=None, item=None):
     log.info("Opening log file: %s", LOG_FILE)
     if LOG_FILE.exists():
-        subprocess.Popen(['xdg-open', str(LOG_FILE)])
+        env = os.environ.copy()
+        env.pop("VIRTUAL_ENV", None)
+        env.pop("PYTHONPATH", None)
+        env.pop("PYTHONHOME", None)
+        
+        subprocess.Popen(['xdg-open', str(LOG_FILE)], env=env,
+                         stdout=subprocess.DEVNULL,
+                         stderr=subprocess.DEVNULL,
+                         stdin=subprocess.DEVNULL,
+                         start_new_session=True)
     else:
         _show_info("Файл логов ещё не создан.", "TG WS Proxy")
 
